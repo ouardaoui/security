@@ -8,5 +8,6 @@ def snif(interface):
 
 def process_packet(packet):
     if packet.haslayer(http.HTTPRequest) :
-        print(packet)
+    #packet.haslayer(scapy.Raw):
+            print(packet.show()) 
 snif("eth0")
